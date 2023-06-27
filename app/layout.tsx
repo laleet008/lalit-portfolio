@@ -1,6 +1,5 @@
 import "./globals.css";
 import Provider from "./provider";
-import ThemeSwitcher from "../components/ThemeSwitcher";
 
 export const metadata = {
   title: "Lalit",
