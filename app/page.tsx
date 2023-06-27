@@ -5,7 +5,7 @@ export default function Home() {
     <>
       <Navbar />
       <main className="">
-        <h1>I am Laleet. </h1>
+        <h1>Coming Super Fast</h1>
       </main>
     </>
   );
