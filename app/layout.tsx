@@ -1,7 +1,6 @@
 import "./globals.css";
-import { Inter } from "next/font/google";
-
-const inter = Inter({ subsets: ["latin"] });
+import Provider from "./provider";
+import ThemeSwitcher from "../components/ThemeSwitcher";
 
 export const metadata = {
   title: "Lalit",
@@ -15,7 +14,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body>
+        <Provider>{children}</Provider>
+      </body>
     </html>
   );
 }
