@@ -2,168 +2,510 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 255, 255, 255;
-  --background-start-rgb: 0, 0, 0;
-  --background-end-rgb: 0, 0, 0;
-  --foreground-rgb-light: 0, 0, 0;
-  --background-start-rgb-light: 214, 219, 220;
-  --background-end-rgb-light: 255, 255, 255;
+/*
+ * Theme tokens (--bg, --fg, …) are injected by app/layout.tsx from lib/theme.ts.
+ * The accent is a pair of registered colours so it can transition smoothly
+ * when a project section or case study takes over the page.
+ */
+@property --accent-dark {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #ededef;
 }
 
-/* :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-} */
-
-/* @media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  } */
-/* } */
-
-* {
-  box-sizing: inherit;
-  /* transition-property: all;
-  transition-duration: 0.4s;
-  transition-timing-function: ease; */
+@property --accent-light {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #141417;
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: rgb(var(--background-end-rgb));
-  height: 100%;
-  width: 100%;
+/*
+ * Re-declared on every element (not just :root) so that a subtree which sets
+ * its own --accent-dark/--accent-light pair resolves --accent against it.
+ */
+*,
+::before,
+::after {
+  --accent: var(--accent-dark);
 }
 
-[data-theme="light"] body {
-  color: rgb(var(--foreground-rgb-light));
-  background: rgb(var(--background-end-rgb-light));
+[data-theme="light"],
+[data-theme="light"] *,
+[data-theme="light"] ::before,
+[data-theme="light"] ::after {
+  --accent: var(--accent-light);
 }
 
-/* navbar */
+@layer base {
+  html {
+    transition:
+      --accent-dark 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+      --accent-light 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+    background: var(--bg);
+    color: var(--fg);
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+  }
 
-.btn {
-  color: rgb(var(--foreground-rgb));
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 45px;
-  /* margin: 0 0 2em; */
-  /* max-width: 160px; */
-  position: relative;
-  text-decoration: none;
-  text-transform: uppercase;
-  width: 100%;
-  display: flex;
-  justify-content: center;
+  body {
+    @apply bg-bg font-sans text-fg antialiased;
+  }
+
+  ::selection {
+    background: var(--accent);
+    color: var(--bg);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
 }
 
-[data-theme="light"] .btn {
-  color: rgb(var(--foreground-rgb-light));
+/*
+ * Scroll reveals (components/ui/Reveal.tsx, SplitText.tsx). Hidden until
+ * RevealObserver adds [data-inview]; one easing and duration for everything.
+ */
+[data-reveal],
+[data-reveal-item],
+[data-reveal="maskUp"] > span,
+.split__unit {
+  transition:
+    opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
-
-.btn-1 {
-  background: darken(var(--foreground-rgb), 1.5%);
-  font-weight: 300;
+[data-reveal] {
+  transition-delay: var(--delay, 0s);
 }
-
-[data-theme="light"] .btn-1 {
-  background: darken(var(--foreground-rgb-light), 1.5%);
+[data-reveal="fadeUp"]:not([data-inview]) {
+  opacity: 0;
+  transform: translateY(24px);
 }
-
-.btn-1 svg {
-  height: 45px;
-  left: 0;
-  position: absolute;
-  top: 0;
-  width: 100%;
-  box-sizing: inherit;
-  transition-property: all;
-  transition-duration: 0.4s;
-  transition-timing-function: ease;
-}
-
-.btn-1 rect {
-  fill: none;
-  stroke: rgb(var(--foreground-rgb));
-  stroke-width: 2;
-  stroke-dasharray: 422, 0;
-  transition: all 0.35s linear;
-}
-
-.btn-1:hover {
-  background: rgba(var(--foreground-rgb), 0);
-  font-weight: 900;
-  letter-spacing: 1px;
-  box-sizing: inherit;
-  transition-property: all;
-  transition-duration: 0.6s;
-  transition-timing-function: ease;
-}
-
-[data-theme="light"] .btn-1:hover {
-  background: rgba(var(--foreground-rgb-light), 0);
-}
-
-[data-theme="light"] .nav-link::before {
-  background-color: rgba(var(--foreground-rgb-light), 1);
-}
-
-[data-theme="light"] .btn-1 rect {
-  stroke: rgb(var(--foreground-rgb-light));
-}
-
-.btn-1:hover rect {
-  stroke-width: 5;
-  stroke-dasharray: 15, 310;
-  stroke-dashoffset: 48;
-  transition: all 1.35s cubic-bezier(0.19, 1, 0.22, 1);
-}
-
-.nav-link {
-  padding: 8px 0px;
-}
-
-.nav-link:hover {
-  opacity: 1;
-}
-
-.nav-link::before {
-  transition: 300ms;
-  height: 3px;
-  content: "";
-  position: absolute;
-  background-color: rgba(var(--foreground-rgb), 1);
-}
-
-.nav-link-ltr::before {
-  width: 0%;
-  bottom: 10px;
-}
-
-.nav-link-ltr:hover::before {
-  width: 100%;
-}
-
-.nav-link-fade-up::before {
-  width: 100%;
-  bottom: 4px;
+[data-reveal="fade"]:not([data-inview]) {
   opacity: 0;
 }
+[data-reveal="maskUp"] > span {
+  transition-duration: 0.9s;
+  transition-delay: var(--delay, 0s);
+}
+[data-reveal="maskUp"]:not([data-inview]) > span {
+  transform: translateY(110%);
+}
+[data-reveal-item] {
+  transition-delay: calc(var(--delay, 0s) + var(--i, 0) * var(--stagger, 0s));
+}
+[data-reveal-group]:not([data-inview]) [data-reveal-item="fadeUp"] {
+  opacity: 0;
+  transform: translateY(24px);
+}
+[data-reveal-group]:not([data-inview]) [data-reveal-item="fade"] {
+  opacity: 0;
+}
+.split__mask {
+  display: inline-block;
+  overflow: hidden;
+  padding-bottom: 0.12em;
+  margin-bottom: -0.12em;
+  vertical-align: bottom;
+}
+.split__unit {
+  display: inline-block;
+  transition-duration: 0.9s;
+  transition-delay: calc(var(--delay, 0s) + var(--i, 0) * var(--stagger, 0s));
+}
+[data-split]:not([data-inview]) .split__unit {
+  transform: translateY(110%);
+}
 
-.nav-link-fade-up:hover::before {
-  bottom: 10px;
+/* Route change (components/layout/PageTransition.tsx): ~550ms */
+.route-wipe {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  pointer-events: none;
+  background: var(--bg);
+  transform-origin: top;
+  animation: route-wipe 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.route-enter {
+  animation: route-enter 0.56s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both;
+}
+@keyframes route-wipe {
+  to {
+    transform: scaleY(0);
+  }
+}
+@keyframes route-enter {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+}
+
+/* Work filters (components/work/ProjectFilters.tsx): native view transitions */
+::view-transition-group(*) {
+  animation-duration: 0.5s;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+::view-transition-old(*),
+::view-transition-new(*) {
+  animation-duration: 0.3s;
+}
+
+/* Kinetic hero heading (components/ui/KineticHeading.tsx) */
+.kinetic__slot {
+  position: relative;
+  display: inline-block;
+  overflow-x: visible;
+  overflow-y: clip;
+  padding-bottom: 0.12em;
+  margin-bottom: -0.12em;
+  vertical-align: bottom;
+}
+.kinetic__ghost {
+  visibility: hidden;
+  font-variation-settings: "wght" 560;
+}
+.kinetic__glyph {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  font-variation-settings: "wght" 560;
+  transform: translateX(-50%);
+  animation: kinetic-in 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--intro-delay, 0s) + 0.1s + var(--i) * 32ms);
+}
+@keyframes kinetic-in {
+  from {
+    transform: translate(-50%, 115%);
+    font-variation-settings: "wght" 800;
+  }
+  55% {
+    font-variation-settings: "wght" 760;
+  }
+  to {
+    transform: translate(-50%, 0);
+    font-variation-settings: "wght" 560;
+  }
+}
+
+/* Hero copy entrance: CSS so it paints without waiting for JS */
+.hero-rise {
+  animation: hero-rise 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--intro-delay, 0s) + var(--rise, 0s));
+}
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+}
+/* The LCP candidate: moves but never fades, so it counts as painted on frame one. */
+.hero-rise--lcp {
+  animation-name: hero-rise-lcp;
+}
+@keyframes hero-rise-lcp {
+  from {
+    transform: translateY(24px);
+  }
+}
+
+/* Hero mesh (components/home/HeroMesh.tsx) */
+.hero-mesh__pool {
+  position: absolute;
+  width: 70vmax;
+  height: 70vmax;
+  border-radius: 9999px;
+  background: radial-gradient(circle at center, var(--pool) 0%, transparent 62%);
+  opacity: 0.13;
+  will-change: transform;
+  animation: mesh-drift 36s ease-in-out infinite alternate;
+}
+[data-theme="light"] .hero-mesh__pool {
+  opacity: 0.2;
+}
+.hero-mesh__pool--0 {
+  left: -25vmax;
+  top: -30vmax;
+}
+.hero-mesh__pool--1 {
+  right: -30vmax;
+  top: -10vmax;
+  animation-duration: 44s;
+  animation-direction: alternate-reverse;
+}
+.hero-mesh__pool--2 {
+  left: 15vmax;
+  bottom: -45vmax;
+  animation-duration: 52s;
+}
+@keyframes mesh-drift {
+  to {
+    transform: translate3d(8vmax, 6vmax, 0) scale(1.15);
+  }
+}
+
+/* Case-study diagrams (components/work/diagrams) */
+.dg [data-draw] {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  opacity: 0;
+  transition:
+    stroke-dashoffset 1.2s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.2s linear;
+  transition-delay: calc(var(--d, 0) * 1s);
+}
+.dg [data-fade] {
+  opacity: 0;
+  translate: 0 6px;
+  transition:
+    opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    translate 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: calc(var(--d, 0) * 1s);
+}
+.dg[data-inview] [data-draw] {
+  stroke-dashoffset: 0;
   opacity: 1;
 }
-
-.nav-link-grow-up::before {
-  height: 0%;
-  width: 100%;
-  bottom: 0px;
+.dg[data-inview] [data-fade] {
+  opacity: 1;
+  translate: 0 0;
 }
 
-/* navbar */
+/* Code excerpt tokens (lib/highlight.ts) */
+.tok-plain,
+.tok-fn {
+  color: var(--fg);
+}
+.tok-keyword,
+.tok-number {
+  color: var(--accent);
+}
+.tok-type {
+  color: var(--fg);
+  font-weight: 600;
+}
+.tok-string {
+  color: color-mix(in srgb, var(--accent) 55%, var(--fg));
+}
+.tok-comment,
+.tok-punct {
+  color: var(--dim);
+}
+.tok-comment {
+  font-style: italic;
+}
+
+/* First-visit intro (components/layout/LoadingScreen.tsx) */
+.intro {
+  display: none;
+}
+/* Kept after the intro ends so in-flight hero glyphs don't jump; skipping drops it. */
+html[data-intro="pending"],
+html[data-intro="done"] {
+  --intro-delay: 1.2s;
+}
+html[data-intro="pending"] .intro {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  background: var(--bg);
+  animation: intro-out 0.45s cubic-bezier(0.76, 0, 0.24, 1) 1.15s forwards;
+}
+.intro__name {
+  font-size: clamp(2rem, 7vw, 5rem);
+  letter-spacing: -0.03em;
+  animation: intro-name 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.intro__rule {
+  display: block;
+  width: min(18rem, 60vw);
+  height: 1px;
+  background: var(--accent);
+  transform-origin: left;
+  animation: intro-rule 0.95s cubic-bezier(0.65, 0, 0.35, 1) 0.15s both;
+}
+.intro__skip {
+  position: absolute;
+  bottom: calc(1.5rem + env(safe-area-inset-bottom));
+  right: 1.5rem;
+  color: var(--dim);
+}
+.intro__skip:hover {
+  color: var(--accent);
+}
+@keyframes intro-name {
+  from {
+    opacity: 0;
+    transform: translateY(40%);
+  }
+}
+@keyframes intro-rule {
+  from {
+    transform: scaleX(0);
+  }
+}
+@keyframes intro-out {
+  to {
+    transform: translateY(-100%);
+    visibility: hidden;
+  }
+}
+
+/* Custom cursor: hide the native one only while ours is mounted */
+html.has-cursor,
+html.has-cursor * {
+  cursor: none;
+}
+html.has-cursor iframe {
+  cursor: auto;
+}
+
+/* Lenis */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: clip;
+}
+
+/* Mobile menu entrance (the dialog itself is instant; items rise in) */
+.mobile-menu-item {
+  opacity: 0;
+  transform: translateY(1.25rem);
+  transition:
+    opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.mobile-menu[open] .mobile-menu-item {
+  opacity: 1;
+  transform: none;
+}
+@starting-style {
+  .mobile-menu[open] .mobile-menu-item {
+    opacity: 0;
+    transform: translateY(1.25rem);
+  }
+}
+
+main:focus,
+main h1:focus {
+  outline: none;
+}
+
+@keyframes kinetic-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-menu-item {
+    transform: none;
+    transition: opacity 0.2s linear;
+  }
+  .kinetic__glyph {
+    transform: translateX(-50%);
+    animation: kinetic-fade 0.5s linear both;
+  }
+  .hero-mesh__pool {
+    animation: none;
+  }
+  .hero-rise {
+    animation: kinetic-fade 0.5s linear both;
+  }
+  /* Every reveal becomes a plain fade */
+  [data-reveal],
+  [data-reveal-item],
+  [data-reveal] > span,
+  .split__unit {
+    transform: none !important;
+    transition: opacity 0.4s linear;
+    transition-delay: 0s;
+  }
+  [data-split]:not([data-inview]) .split__unit {
+    opacity: 0;
+  }
+  .route-wipe {
+    display: none;
+  }
+  .route-enter {
+    animation: kinetic-fade 0.2s linear both;
+  }
+  .dg [data-fade],
+  .dg [data-draw] {
+    translate: none;
+    stroke-dashoffset: 0;
+    transition: opacity 0.4s linear;
+    transition-delay: 0s;
+  }
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Print: a clean A4 page. Light tokens, no chrome, everything revealed. */
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm 15mm;
+  }
+  /* Doubled selectors outrank the injected theme <style> regardless of source order. */
+  html:root,
+  html:root[data-theme] {
+    --bg: #ffffff;
+    --bg-rgb: 255 255 255;
+    --surface: #ffffff;
+    --surface-rgb: 255 255 255;
+    --fg: #111111;
+    --fg-rgb: 17 17 17;
+    --dim: #444444;
+    --dim-rgb: 68 68 68;
+    --line: #cccccc;
+    --line-rgb: 204 204 204;
+    --accent-dark: #111111;
+    --accent-light: #111111;
+    color-scheme: light;
+  }
+  html,
+  body {
+    background: #fff !important;
+    font-size: 10pt;
+  }
+  [data-reveal],
+  [data-reveal] *,
+  [data-reveal-item],
+  [data-split] *,
+  .hero-rise,
+  .route-enter {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+  .route-wipe {
+    display: none;
+  }
+  a {
+    text-decoration: none;
+  }
+  .resume {
+    line-height: 1.4;
+  }
+  .resume-h2 {
+    break-after: avoid;
+  }
+  .resume-keep {
+    break-inside: avoid;
+  }
+}

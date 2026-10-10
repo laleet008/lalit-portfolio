@@ -1,34 +1,65 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# lalitpuri.com.np
 
-## Getting Started
+The portfolio of Lalit Puri, frontend engineer. A statically exported Next.js site with live, embedded previews of three projects, written-up case studies with code excerpts and animated diagrams, an about page, and a printable web resume.
 
-First, run the development server:
+Every fact on the site lives in `content/` and is validated with Zod at build time. Assumptions are recorded in [DECISIONS.md](DECISIONS.md).
+
+## Run it
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
+pnpm install
+pnpm dev         # http://localhost:3000
+pnpm build       # static export to out/
+pnpm preview     # serve out/ locally
+pnpm test        # Vitest: content, contrast, highlighter
+pnpm lint && pnpm typecheck
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Update content
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+All copy is data; components contain no sentences.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+| What | File |
+|---|---|
+| Name, bio, contact, socials, availability, "currently" | `content/profile.ts` |
+| Jobs and bullets | `content/experience.ts` |
+| Skills (`strong` / `medium`) | `content/skills.ts` |
+| Education, certifications | `content/education.ts` |
+| Writing (optional) | `content/writing.ts` |
+| Home "What I do" columns | `content/capabilities.ts` |
+| Buttons, labels, section names, 404 text | `content/site.ts` |
+| Diagram titles and captions | `content/diagrams.ts` |
+| The CV PDF | replace `public/cv/Lalit-Puri-Resume.pdf` (same name) |
 
-## Learn More
+A malformed entry fails `pnpm build` with a message naming the field. For example, an accent that isn't uppercase hex gives "Use uppercase 6-digit hex".
 
-To learn more about Next.js, take a look at the following resources:
+## Add a project
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Create `content/projects/<slug>.ts` exporting a `ProjectInput`; copy an existing one as a template.
+2. Import it into `content/projects.ts`. Array order is display order.
+3. Give it an `accent` (dark theme) and an `accentOnLight` that passes 4.5:1 on `#F6F4EF`; `pnpm test` checks both.
+4. Optional: code excerpts (`highlights[].code`, trimmed from the real file) and diagrams (`highlights[].diagram`, a component in `components/work/diagrams/`).
+5. To make it a flagship with a live preview, set `featured: true`, `liveUrl`, `preview: "browser" | "handheld"`, and add a static recreation to `components/preview/posters/`. Exactly three projects can be featured. If the site sends `X-Frame-Options`, set `embeddable: false`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+The case-study page, OG image (`/og/<slug>.png`), sitemap entry and JSON-LD are generated automatically.
 
-## Deploy on Vercel
+## Deploy
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The build is a plain static folder (`out/`).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+- **Vercel:** import the repo; it detects Next.js and serves the static export. `vercel.json` adds cache and security headers.
+- **GitHub Pages:** publish `out/` (for example with `actions/deploy-pages`). The custom domain lives in `public/CNAME`, so it's copied into every build.
+
+After deploying, paste a URL into a link-preview debugger (e.g. opengraph.xyz) to confirm the OG cards, and run PageSpeed Insights against the live site.
+
+## How it's built
+
+- **Next.js 16 App Router**, TypeScript strict, Tailwind CSS, static export.
+- **Motion** is CSS-first:
+  - One IntersectionObserver drives every scroll reveal.
+  - The hero's kinetic type reveal is pure CSS.
+  - The work filters animate with the View Transitions API.
+  - Lenis provides smooth scroll, loaded after first paint.
+  - Every effect has a reduced-motion path.
+- **Theming:** dark/light/system via `next-themes`. Each project's accent takes over the page while you're in its section or case study, and cross-fades through registered CSS custom properties.
+- **Structure:** `app/` routes · `components/{layout,home,work,preview,about,ui}` · `content/` data + schema · `lib/` theme, accent maths, SEO, OG rendering, tokenizer, hooks · `tests/`.
